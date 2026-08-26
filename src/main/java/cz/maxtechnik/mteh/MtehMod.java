@@ -12,11 +12,17 @@ import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.slf4j.Logger;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 @SuppressWarnings("removal")
 @Mod(MtehMod.MODID)
 public class MtehMod{
 	public static final String MODID="mteh";
 	public static final Logger LOGGER=LogUtils.getLogger();
+	public static final Set<UUID> PENDING_ENDER_HUB = Collections.synchronizedSet(new HashSet<>());
 	public MtehMod(IEventBus bus){
 		bus.addListener(this::commonSetup);
 		bus.addListener(this::registerPayloads);
