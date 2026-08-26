@@ -39,26 +39,26 @@ public class EnderHubMenu extends AbstractContainerMenu{
 		this(containerId,playerInventory,new SimpleContainer(27));
 	}
 	public EnderHubMenu(int containerId,Inventory playerInventory,Container enderChest){
-		super(null,containerId);
+		super(MenuType.GENERIC_9x3,containerId);
 		this.enderChest=enderChest;
 		this.player=playerInventory.player;
-		//Ender (3x9) - Index 0 - 26
+		// Ender (3x9) - Index 0 - 26
 		for(int row=0;row<3;++row){
 			for(int col=0;col<9;++col){
 				this.addSlot(new Slot(enderChest,col+row*9,44+col*18,18+row*18));
 			}
 		}
-		//inv (3x9) - Index 27 - 53
+		// Inv (3x9) - Index 27 - 53
 		for(int row=0;row<3;++row){
 			for(int col=0;col<9;++col){
 				this.addSlot(new Slot(playerInventory,col+row*9+9,44+col*18,85+row*18));
 			}
 		}
-		//Hotbar (1x9) - Index 54 - 62
+		// Hotbar (1x9) - Index 54 - 62
 		for(int col=0;col<9;++col){
 			this.addSlot(new Slot(playerInventory,col,44+col*18,143));
 		}
-		//Armor - Index 63 - 66
+		// Armor - Index 63 - 66
 		for(int i=0;i<4;++i){
 			final EquipmentSlot slotType=ARMOR_SLOTS[i];
 			final ResourceLocation texture=ARMOR_TEXTURES[i];
@@ -82,19 +82,19 @@ public class EnderHubMenu extends AbstractContainerMenu{
 				}
 			});
 		}
-		//Offhand - Index 67
+		// Offhand - Index 67
 		this.addSlot(new Slot(playerInventory,40,11,107){
 			@Override
 			public Pair<ResourceLocation,ResourceLocation> getNoItemIcon(){
 				return Pair.of(InventoryMenu.BLOCK_ATLAS,EMPTY_ARMOR_SLOT_SHIELD);
 			}
 		});
-		//Crafting Result - Index 68
+		// Crafting Result - Index 68
 		this.addSlot(new ResultSlot(playerInventory.player,this.craftSlots,this.resultSlots,0,239,94));
-		//Crafting Grid (3x3) - Index 69 - 77
+		// Crafting Grid (3x3) - Index 69 - 77
 		for(int r=0;r<3;++r){
 			for(int c=0;c<3;++c){
-				final boolean isExtra=(r==2||c==2); // 5 dodatečných políček
+				final boolean isExtra=(r==2||c==2);
 				this.addSlot(new Slot(this.craftSlots,c+r*3,221+c*18,29+r*18){
 					@Override
 					public boolean isActive(){
@@ -105,14 +105,12 @@ public class EnderHubMenu extends AbstractContainerMenu{
 		}
 	}
 	public boolean hasCraftingTable(){
-		//Hotbar, inv, Offhand, Armor) Check
 		for(ItemStack stack: this.player.getInventory().items)
 			if(isCraftingTable(stack)) return true;
 		for(ItemStack stack: this.player.getInventory().offhand)
 			if(isCraftingTable(stack)) return true;
 		for(ItemStack stack: this.player.getInventory().armor)
 			if(isCraftingTable(stack)) return true;
-		//Ender Check
 		for(int i=0;i<this.enderChest.getContainerSize();++i)
 			if(isCraftingTable(this.enderChest.getItem(i))) return true;
 		return false;
@@ -130,7 +128,6 @@ public class EnderHubMenu extends AbstractContainerMenu{
 	public void slotsChanged(@NotNull Container container){
 		Level level=this.player.level();
 		if(!level.isClientSide){
-			//On Crafting Lost:
 			if(!this.hasCraftingTable()){
 				for(int r=0;r<3;++r){
 					for(int c=0;c<3;++c){
@@ -171,21 +168,14 @@ public class EnderHubMenu extends AbstractContainerMenu{
 		if(slot.hasItem()){
 			ItemStack slotStack=slot.getItem();
 			itemstack=slotStack.copy();
-			// Crafting Result (68) -> inv/Hotbar
 			if(index==68){
 				if(!this.moveItemStackTo(slotStack,27,63,true)) return ItemStack.EMPTY;
 				slot.onQuickCraft(slotStack,itemstack);
-			}
-			// Ender (0-26) -> inv/Hotbar
-			else if(index<27){
+			}else if(index<27){
 				if(!this.moveItemStackTo(slotStack,27,63,false)) return ItemStack.EMPTY;
-			}
-			// inv/Hotbar (27-62) -> Ender
-			else if(index<63){
+			}else if(index<63){
 				if(!this.moveItemStackTo(slotStack,0,27,false)) return ItemStack.EMPTY;
-			}
-			// Armor (63-66), Offhand (67), Crafting Grid (69-77) -> inv
-			else if(!this.moveItemStackTo(slotStack,27,63,false)) return ItemStack.EMPTY;
+			}else if(!this.moveItemStackTo(slotStack,27,63,false)) return ItemStack.EMPTY;
 			if(slotStack.isEmpty()) slot.setByPlayer(ItemStack.EMPTY);
 			else slot.setChanged();
 			if(slotStack.getCount()==itemstack.getCount()) return ItemStack.EMPTY;
