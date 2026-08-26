@@ -8,6 +8,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.slf4j.Logger;
@@ -30,6 +31,10 @@ public class MtehMod{
 	}
 	private void commonSetup(final FMLCommonSetupEvent event){
 		LOGGER.info("MT-EnderHub: Common Setup");
+	}
+	@SubscribeEvent
+	public void onServerStarting(ServerStartingEvent event){
+		LOGGER.info("MT-EnderHub: Server Starting");
 	}
 	@EventBusSubscriber(modid=MODID, bus=EventBusSubscriber.Bus.MOD, value=Dist.CLIENT)
 	public static class ClientModEvents{
