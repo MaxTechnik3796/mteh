@@ -30,7 +30,7 @@ public class MtehEnderChestScreen extends AbstractContainerScreen<MtehEnderChest
 		int y = (this.height - this.imageHeight) / 2;
 
 		// 1. Tmavý podklad pod celou šířkou (aby boční sloty nevisely ve vzduchu)
-		guiGraphics.fill(x, y, x + this.imageWidth, y + this.imageHeight, 0xCC101010);
+		//guiGraphics.fill(x, y, x + this.imageWidth, y + this.imageHeight, 0xCC101010);
 
 		// 2. Vanilla textura truhly vycentrovaná na středové sloty (+36 px zleva)
 		int chestX = x + 36;
