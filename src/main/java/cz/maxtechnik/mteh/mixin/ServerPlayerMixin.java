@@ -1,7 +1,6 @@
 package cz.maxtechnik.mteh.mixin;
 
 import cz.maxtechnik.mteh.EnderHubMenu;
-import cz.maxtechnik.mteh.MtehMod;
 import cz.maxtechnik.mteh.MtehModPackets;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
@@ -35,7 +34,7 @@ public abstract class ServerPlayerMixin{
 	private void mteh$replaceEnderChestOpen(MenuProvider menuProvider,Consumer<AbstractContainerMenu> extraData,CallbackInfoReturnable<OptionalInt> cir){
 		if(menuProvider==null) return;
 		ServerPlayer player=(ServerPlayer)(Object)this;
-		if(!MtehMod.hasMod(player.getUUID())) return;
+		if(player.connection==null||!player.connection.hasChannel(MtehModPackets.OpenEnderChestPayload.TYPE)) return;
 		AbstractContainerMenu menu=menuProvider.createMenu(this.containerCounter+1,player.getInventory(),player);
 		if(menu instanceof ChestMenu chestMenu&&chestMenu.getContainer() instanceof PlayerEnderChestContainer){
 			if(player.containerMenu!=player.inventoryMenu) player.closeContainer();
