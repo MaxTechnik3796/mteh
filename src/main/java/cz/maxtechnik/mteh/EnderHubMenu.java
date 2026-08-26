@@ -2,6 +2,7 @@ package cz.maxtechnik.mteh;
 
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -9,6 +10,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -31,7 +33,7 @@ public class EnderHubMenu extends AbstractContainerMenu{
 			EMPTY_ARMOR_SLOT_HELMET,EMPTY_ARMOR_SLOT_CHESTPLATE,EMPTY_ARMOR_SLOT_LEGGINGS,EMPTY_ARMOR_SLOT_BOOTS
 	};
 	private final Container enderChest;
-	private final CraftingContainer craftSlots=new TransientCraftingContainer(this,2,2);
+	private final CraftingContainer craftSlots=new TransientCraftingContainer(this,3,3);
 	private final ResultContainer resultSlots=new ResultContainer();
 	private final Player player;
 	public EnderHubMenu(int containerId,Inventory playerInventory){
@@ -90,18 +92,60 @@ public class EnderHubMenu extends AbstractContainerMenu{
 			}
 		});
 		//Crafting Result - Index 68
-		this.addSlot(new ResultSlot(playerInventory.player,this.craftSlots,this.resultSlots,0,230,76));
-		//Crafting Grid (2x2) - Index 69 - 72
-		for(int r=0;r<2;++r)
-			for(int c=0;c<2;++c)
-				this.addSlot(new Slot(this.craftSlots,c+r*2,221+c*18,29+r*18));
+		this.addSlot(new ResultSlot(playerInventory.player,this.craftSlots,this.resultSlots,0,239,94));
+		//Crafting Grid (3x3) - Index 69 - 77
+		for(int r=0;r<3;++r){
+			for(int c=0;c<3;++c){
+				final boolean isExtra=(r==2||c==2); // 5 dodatečných políček
+				this.addSlot(new Slot(this.craftSlots,c+r*3,221+c*18,29+r*18){
+					@Override
+					public boolean isActive(){
+						return !isExtra||hasCraftingTable();
+					}
+				});
+			}
+		}
+	}
+	public boolean hasCraftingTable(){
+		//Hotbar, inv, Offhand, Armor) Check
+		for(ItemStack stack: this.player.getInventory().items)
+			if(isCraftingTable(stack)) return true;
+		for(ItemStack stack: this.player.getInventory().offhand)
+			if(isCraftingTable(stack)) return true;
+		for(ItemStack stack: this.player.getInventory().armor)
+			if(isCraftingTable(stack)) return true;
+		//Ender Check
+		for(int i=0;i<this.enderChest.getContainerSize();++i)
+			if(isCraftingTable(this.enderChest.getItem(i))) return true;
+		return false;
+	}
+	private boolean isCraftingTable(ItemStack stack){
+		if(stack==null||stack.isEmpty()) return false;
+		return stack.is(Items.CRAFTING_TABLE)||stack.is(ItemTags.create(ResourceLocation.fromNamespaceAndPath("c","crafting_tables")));
 	}
 	@Override
 	public void slotsChanged(@NotNull Container container){
 		Level level=this.player.level();
 		if(!level.isClientSide){
+			//On Crafting Lost:
+			if(!this.hasCraftingTable()){
+				for(int r=0;r<3;++r){
+					for(int c=0;c<3;++c){
+						if(r==2||c==2){
+							int slotIdx=c+r*3;
+							ItemStack extraStack=this.craftSlots.getItem(slotIdx);
+							if(!extraStack.isEmpty()){
+								this.player.getInventory().placeItemBackInInventory(extraStack);
+								this.craftSlots.setItem(slotIdx,ItemStack.EMPTY);
+							}
+						}
+					}
+				}
+			}
 			CraftingInput input=this.craftSlots.asCraftInput();
-			Optional<RecipeHolder<CraftingRecipe>> recipe=Objects.requireNonNull(level.getServer()).getRecipeManager().getRecipeFor(RecipeType.CRAFTING,input,level);
+			Optional<RecipeHolder<CraftingRecipe>> recipe=Objects.requireNonNull(level.getServer())
+					.getRecipeManager()
+					.getRecipeFor(RecipeType.CRAFTING,input,level);
 			if(recipe.isPresent()) this.resultSlots.setItem(0,recipe.get().value().assemble(input,level.registryAccess()));
 			else this.resultSlots.setItem(0,ItemStack.EMPTY);
 			this.broadcastChanges();
@@ -124,31 +168,24 @@ public class EnderHubMenu extends AbstractContainerMenu{
 		if(slot.hasItem()){
 			ItemStack slotStack=slot.getItem();
 			itemstack=slotStack.copy();
-			//Crafting Result:
+			// Crafting Result (68) -> inv/Hotbar
 			if(index==68){
-				if(!this.moveItemStackTo(slotStack,27,63,true))
-					return ItemStack.EMPTY;
+				if(!this.moveItemStackTo(slotStack,27,63,true)) return ItemStack.EMPTY;
 				slot.onQuickCraft(slotStack,itemstack);
 			}
-			//Ender -> inv/Hotbar
+			// Ender (0-26) -> inv/Hotbar
 			else if(index<27){
-				if(!this.moveItemStackTo(slotStack,27,63,false))
-					return ItemStack.EMPTY;
+				if(!this.moveItemStackTo(slotStack,27,63,false)) return ItemStack.EMPTY;
 			}
-			//inv/Hotbar -> Ender
+			// inv/Hotbar (27-62) -> Ender
 			else if(index<63){
-				if(!this.moveItemStackTo(slotStack,0,27,false))
-					return ItemStack.EMPTY;
+				if(!this.moveItemStackTo(slotStack,0,27,false)) return ItemStack.EMPTY;
 			}
-			//Armor/offhandu/Crafting -> inv
-			else if(!this.moveItemStackTo(slotStack,27,63,false))
-				return ItemStack.EMPTY;
-			if(slotStack.isEmpty())
-				slot.setByPlayer(ItemStack.EMPTY);
-			else
-				slot.setChanged();
-			if(slotStack.getCount()==itemstack.getCount())
-				return ItemStack.EMPTY;
+			// Armor (63-66), Offhand (67), Crafting Grid (69-77) -> inv
+			else if(!this.moveItemStackTo(slotStack,27,63,false)) return ItemStack.EMPTY;
+			if(slotStack.isEmpty()) slot.setByPlayer(ItemStack.EMPTY);
+			else slot.setChanged();
+			if(slotStack.getCount()==itemstack.getCount()) return ItemStack.EMPTY;
 			slot.onTake(player,slotStack);
 		}
 		return itemstack;

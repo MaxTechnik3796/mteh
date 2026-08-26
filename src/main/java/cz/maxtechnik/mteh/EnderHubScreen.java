@@ -23,13 +23,13 @@ public class EnderHubScreen extends AbstractContainerScreen<EnderHubMenu>{
 		int x=(this.width-this.imageWidth)/2;
 		int y=(this.height-this.imageHeight)/2;
 		int chestX=x+36;
-		//Armor&Offhand:
-		guiGraphics.blit(ENDER_HUB_BACKGROUND,chestX-34,y+20,0,0,36,112,128,128);
-		//Crafting:
-		guiGraphics.blit(ENDER_HUB_BACKGROUND,chestX+173,y+20,73,0,55,81,128,128);
-		//Ender:
+		// Armor & Offhand:
+		guiGraphics.blit(ENDER_HUB_BACKGROUND,chestX-34,y+20,0,0,34,112,128,128);
+		// Crafting panel podklad:
+		guiGraphics.blit(ENDER_HUB_BACKGROUND,chestX+176,y+20,58,0,70,99,128,128);
+		// Ender Chest:
 		guiGraphics.blit(CONTAINER_BACKGROUND,chestX,y,0,0,176,71);
-		//inv:
+		// Inventář:
 		guiGraphics.blit(CONTAINER_BACKGROUND,chestX,y+71,0,126,176,96);
 	}
 	@Override
