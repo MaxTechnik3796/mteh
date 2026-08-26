@@ -4,6 +4,7 @@
 	"package":"cz.maxtechnik.mteh.mixin",
 	"compatibilityLevel":"JAVA_21",
 	"mixins":[
+		"ServerPlayerMixin"
 	],
 	"client":[
 	],
