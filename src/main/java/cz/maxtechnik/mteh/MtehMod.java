@@ -22,7 +22,7 @@ import java.util.UUID;
 public class MtehMod{
 	public static final String MODID="mteh";
 	public static final Logger LOGGER=LogUtils.getLogger();
-	public static final Set<UUID> PENDING_ENDER_HUB = Collections.synchronizedSet(new HashSet<>());
+	public static final Set<UUID> PENDING_ENDER_HUB=Collections.synchronizedSet(new HashSet<>());
 	public MtehMod(IEventBus bus){
 		bus.addListener(this::commonSetup);
 		bus.addListener(this::registerPayloads);

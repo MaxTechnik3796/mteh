@@ -22,56 +22,43 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.OptionalInt;
 import java.util.function.Consumer;
-
 @Mixin(ServerPlayer.class)
-public abstract class ServerPlayerMixin {
-
+public abstract class ServerPlayerMixin{
 	@ModifyVariable(
-			method = "openMenu(Lnet/minecraft/world/MenuProvider;Ljava/util/function/Consumer;)Ljava/util/OptionalInt;",
-			at = @At("HEAD"),
-			argsOnly = true
+			method="openMenu(Lnet/minecraft/world/MenuProvider;Ljava/util/function/Consumer;)Ljava/util/OptionalInt;",
+			at=@At("HEAD"),
+			argsOnly=true
 	)
-	private MenuProvider mteh$wrapMenuProvider(MenuProvider originalProvider) {
-		if (originalProvider == null) return null;
-		ServerPlayer player = (ServerPlayer) (Object) this;
-
-		if (player.connection == null || !player.connection.hasChannel(MtehModPackets.OpenEnderChestPayload.TYPE)) {
-			return originalProvider;
-		}
-
-		return new MenuProvider() {
+	private MenuProvider mteh$wrapMenuProvider(MenuProvider originalProvider){
+		if(originalProvider==null) return null;
+		ServerPlayer player=(ServerPlayer)(Object)this;
+		if(player.connection==null||!player.connection.hasChannel(MtehModPackets.OpenEnderChestPayload.TYPE)) return originalProvider;
+		return new MenuProvider(){
 			@Override
-			public @NotNull Component getDisplayName() {
+			public @NotNull Component getDisplayName(){
 				return originalProvider.getDisplayName();
 			}
-
 			@Nullable
 			@Override
-			public AbstractContainerMenu createMenu(int containerId, @NotNull Inventory playerInventory, @NotNull Player player) {
-				AbstractContainerMenu menu = originalProvider.createMenu(containerId, playerInventory, player);
-
-				// Pokud jde o Ender Chest, zaevidujeme hráče a vrátíme EnderHubMenu
-				if (menu instanceof ChestMenu chestMenu && chestMenu.getContainer() instanceof PlayerEnderChestContainer) {
+			public AbstractContainerMenu createMenu(int containerId,@NotNull Inventory playerInventory,@NotNull Player player){
+				AbstractContainerMenu menu=originalProvider.createMenu(containerId,playerInventory,player);
+				if(menu instanceof ChestMenu chestMenu&&chestMenu.getContainer() instanceof PlayerEnderChestContainer){
 					MtehMod.PENDING_ENDER_HUB.add(player.getUUID());
-					return new EnderHubMenu(containerId, playerInventory, player.getEnderChestInventory());
+					return new EnderHubMenu(containerId,playerInventory,player.getEnderChestInventory());
 				}
-
-				// Všechny barely, shulker boxy i ostatní kontejnery pokračují původní cestou
 				return menu;
 			}
 		};
 	}
-
 	@Inject(
-			method = "openMenu(Lnet/minecraft/world/MenuProvider;Ljava/util/function/Consumer;)Ljava/util/OptionalInt;",
-			at = @At("RETURN")
+			method="openMenu(Lnet/minecraft/world/MenuProvider;Ljava/util/function/Consumer;)Ljava/util/OptionalInt;",
+			at=@At("RETURN")
 	)
-	private void mteh$onOpenMenuReturn(MenuProvider menuProvider, Consumer<AbstractContainerMenu> extraData, CallbackInfoReturnable<OptionalInt> cir) {
-		ServerPlayer player = (ServerPlayer) (Object) this;
-
-		if (cir.getReturnValue().isPresent() && player.containerMenu instanceof EnderHubMenu customMenu) {
-			int containerId = cir.getReturnValue().getAsInt();
-			PacketDistributor.sendToPlayer(player, new MtehModPackets.OpenEnderChestPayload(containerId));
+	private void mteh$onOpenMenuReturn(MenuProvider menuProvider,Consumer<AbstractContainerMenu> extraData,CallbackInfoReturnable<OptionalInt> cir){
+		ServerPlayer player=(ServerPlayer)(Object)this;
+		if(cir.getReturnValue().isPresent()&&player.containerMenu instanceof EnderHubMenu customMenu){
+			int containerId=cir.getReturnValue().getAsInt();
+			PacketDistributor.sendToPlayer(player,new MtehModPackets.OpenEnderChestPayload(containerId));
 			customMenu.sendAllDataToRemote();
 		}
 	}
