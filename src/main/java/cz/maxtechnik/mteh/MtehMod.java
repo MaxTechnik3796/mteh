@@ -26,7 +26,7 @@ public class MtehMod{
 	public static final Supplier<MenuType<MtehEnderChestMenu>> ENDER_CHEST_MENU=MENUS.register("ender_chest_menu",()->new MenuType<>(MtehEnderChestMenu::new,FeatureFlags.VANILLA_SET));
 	public MtehMod(IEventBus bus){
 		bus.addListener(this::commonSetup);
-		NeoForge.EVENT_BUS.register(this);
+		MENUS.register(bus);
 	}
 	private void commonSetup(final FMLCommonSetupEvent event){
 		LOGGER.info("MT-EnderHub: Common Setup");
