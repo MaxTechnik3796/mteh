@@ -124,6 +124,11 @@ public class EnderHubMenu extends AbstractContainerMenu{
 		return stack.is(Items.CRAFTING_TABLE)||stack.is(ItemTags.create(ResourceLocation.fromNamespaceAndPath("c","crafting_tables")));
 	}
 	@Override
+	public void clicked(int slotId, int button, @NotNull ClickType clickType, @NotNull Player player) {
+		super.clicked(slotId, button, clickType, player);
+		this.slotsChanged(this.craftSlots);
+	}
+	@Override
 	public void slotsChanged(@NotNull Container container){
 		Level level=this.player.level();
 		if(!level.isClientSide){
