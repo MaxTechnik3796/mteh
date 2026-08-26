@@ -46,6 +46,6 @@ public abstract class ServerPlayerMixin{
 			PacketDistributor.sendToPlayer(player,new MtehModPackets.OpenEnderChestPayload(containerId));
 			customMenu.sendAllDataToRemote();
 			cir.setReturnValue(OptionalInt.of(containerId));
-		}
+		}else if(menu!=null) menu.removed(player);
 	}
 }

@@ -42,7 +42,6 @@ public class EnderHubMenu extends AbstractContainerMenu{
 		super(null,containerId);
 		this.enderChest=enderChest;
 		this.player=playerInventory.player;
-		enderChest.startOpen(this.player);
 		//Ender (3x9) - Index 0 - 26
 		for(int row=0;row<3;++row){
 			for(int col=0;col<9;++col){
