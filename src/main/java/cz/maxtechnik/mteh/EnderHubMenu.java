@@ -10,7 +10,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -119,13 +118,13 @@ public class EnderHubMenu extends AbstractContainerMenu{
 			if(isCraftingTable(this.enderChest.getItem(i))) return true;
 		return false;
 	}
-	private boolean isCraftingTable(ItemStack stack){
-		if(stack==null||stack.isEmpty()) return false;
-		return stack.is(Items.CRAFTING_TABLE)||stack.is(ItemTags.create(ResourceLocation.fromNamespaceAndPath("c","crafting_tables")));
+	private boolean isCraftingTable(ItemStack itemStack){
+		if(itemStack==null||itemStack.isEmpty()) return false;
+		return itemStack.is(ItemTags.create(ResourceLocation.parse("c:player_workstations/crafting_tables")));
 	}
 	@Override
-	public void clicked(int slotId, int button, @NotNull ClickType clickType, @NotNull Player player) {
-		super.clicked(slotId, button, clickType, player);
+	public void clicked(int slotId,int button,@NotNull ClickType clickType,@NotNull Player player){
+		super.clicked(slotId,button,clickType,player);
 		this.slotsChanged(this.craftSlots);
 	}
 	@Override
