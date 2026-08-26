@@ -1,3 +1,4 @@
 {
-	"mteh.tooltip.missing_crafting_table":"Required: Crafting Table"
+	"tooltip.mteh.missing_crafting_table":"Required: Crafting Table",
+	"container.mteh.ender_hub":"Ender Hub"
 }

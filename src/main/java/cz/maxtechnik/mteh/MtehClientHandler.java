@@ -8,7 +8,7 @@ public class MtehClientHandler{
 		if(mc.player!=null){
 			EnderHubMenu menu=new EnderHubMenu(containerId,mc.player.getInventory());
 			mc.player.containerMenu=menu;
-			mc.setScreen(new EnderHubScreen(menu,mc.player.getInventory(),Component.translatable("container.enderchest")));
+			mc.setScreen(new EnderHubScreen(menu,mc.player.getInventory(),Component.translatable("container.mteh.ender_hub")));
 		}
 	}
 }

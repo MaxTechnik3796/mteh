@@ -12,7 +12,7 @@ public class EnderHubScreen extends AbstractContainerScreen<EnderHubMenu>{
 	private static final ResourceLocation ENDER_HUB_BACKGROUND=ResourceLocation.fromNamespaceAndPath(MtehMod.MODID,"textures/gui/container/ender_hub.png");
 	public EnderHubScreen(EnderHubMenu menu,Inventory playerInventory,Component title){
 		super(menu,playerInventory,title);
-		this.imageWidth=256;
+		this.imageWidth=277;
 		this.imageHeight=168;
 		this.titleLabelX=44;
 		this.titleLabelY=6;
@@ -57,7 +57,7 @@ public class EnderHubScreen extends AbstractContainerScreen<EnderHubMenu>{
 						int slotX=x+221+c*18;
 						int slotY=y+29+r*18;
 						if(mouseX>=slotX&&mouseX<slotX+16&&mouseY>=slotY&&mouseY<slotY+16){
-							guiGraphics.renderTooltip(this.font,Component.translatable("mteh.tooltip.missing_crafting_table").withStyle(ChatFormatting.RED),mouseX,mouseY);
+							guiGraphics.renderTooltip(this.font,Component.translatable("tooltip.mteh.missing_crafting_table").withStyle(ChatFormatting.RED),mouseX,mouseY);
 							return;
 						}
 					}
