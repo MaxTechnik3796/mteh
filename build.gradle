@@ -96,10 +96,8 @@ dependencies{
     runtimeOnly "curse.maven:jade-324717:7545219"
     runtimeOnly "curse.maven:mouse-tweaks-60089:5637846"
     runtimeOnly "curse.maven:appleskin-248787:7854442"
-    runtimeOnly "curse.maven:pipez-443900:5609056"
     runtimeOnly "curse.maven:crafting-tweaks-233071:8019498"
     runtimeOnly "curse.maven:balm-531761:7420963"
-    runtimeOnly "curse.maven:kotlin-for-forge-351264:7471280"
     runtimeOnly "curse.maven:worldedit-225608:5830452"
 
     runtimeOnly fileTree(dir: 'libs', include: ['*.jar'])
