@@ -1,5 +1,6 @@
 package cz.maxtechnik.mteh;
 
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -17,7 +18,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 import java.util.Optional;
-public class MtehEnderChestMenu extends AbstractContainerMenu{
+public class EnderHubMenu extends AbstractContainerMenu{
 	private static final EquipmentSlot[] ARMOR_SLOTS=new EquipmentSlot[]{
 			EquipmentSlot.HEAD,EquipmentSlot.CHEST,EquipmentSlot.LEGS,EquipmentSlot.FEET
 	};
@@ -33,37 +34,35 @@ public class MtehEnderChestMenu extends AbstractContainerMenu{
 	private final CraftingContainer craftSlots=new TransientCraftingContainer(this,2,2);
 	private final ResultContainer resultSlots=new ResultContainer();
 	private final Player player;
-	// Klientský konstruktor
-	public MtehEnderChestMenu(int containerId,Inventory playerInventory){
+	public EnderHubMenu(int containerId,Inventory playerInventory){
 		this(containerId,playerInventory,new SimpleContainer(27));
 	}
-	// Serverový konstruktor
-	public MtehEnderChestMenu(int containerId,Inventory playerInventory,Container enderChest){
-		super(MtehMod.ENDER_CHEST_MENU.get(),containerId);
+	public EnderHubMenu(int containerId,Inventory playerInventory,Container enderChest){
+		super(null,containerId);
 		this.enderChest=enderChest;
 		this.player=playerInventory.player;
 		enderChest.startOpen(this.player);
-		// 1. Ender Chest Sloty (3x9) - Index 0 až 26
+		//Ender (3x9) - Index 0 - 26
 		for(int row=0;row<3;++row){
 			for(int col=0;col<9;++col){
 				this.addSlot(new Slot(enderChest,col+row*9,44+col*18,18+row*18));
 			}
 		}
-		// 2. Inventář hráče (3x9) - Index 27 až 53
+		//inv (3x9) - Index 27 - 53
 		for(int row=0;row<3;++row){
 			for(int col=0;col<9;++col){
-				this.addSlot(new Slot(playerInventory,col+row*9+9,44+col*18,84+row*18));
+				this.addSlot(new Slot(playerInventory,col+row*9+9,44+col*18,85+row*18));
 			}
 		}
-		// 3. Hotbar (1x9) - Index 54 až 62
+		//Hotbar (1x9) - Index 54 - 62
 		for(int col=0;col<9;++col){
-			this.addSlot(new Slot(playerInventory,col,44+col*18,142));
+			this.addSlot(new Slot(playerInventory,col,44+col*18,143));
 		}
-		// 4. Armor Sloty (4 sloty vlevo) - Index 63 až 66
+		//Armor - Index 63 - 66
 		for(int i=0;i<4;++i){
 			final EquipmentSlot slotType=ARMOR_SLOTS[i];
 			final ResourceLocation texture=ARMOR_TEXTURES[i];
-			this.addSlot(new Slot(playerInventory,39-i,12,18+i*18){
+			this.addSlot(new Slot(playerInventory,39-i,11,29+i*18){
 				@Override
 				public void setByPlayer(@NotNull ItemStack newStack,@NotNull ItemStack oldStack){
 					player.onEquipItem(slotType,oldStack,newStack);
@@ -78,39 +77,33 @@ public class MtehEnderChestMenu extends AbstractContainerMenu{
 					return itemStack.canEquip(slotType,player);
 				}
 				@Override
-				public com.mojang.datafixers.util.Pair<ResourceLocation,ResourceLocation> getNoItemIcon(){
-					return com.mojang.datafixers.util.Pair.of(InventoryMenu.BLOCK_ATLAS,texture);
+				public Pair<ResourceLocation,ResourceLocation> getNoItemIcon(){
+					return Pair.of(InventoryMenu.BLOCK_ATLAS,texture);
 				}
 			});
 		}
-		// 5. Offhand Slot (vlevo dole) - Index 67
-		this.addSlot(new Slot(playerInventory,40,12,90){
+		//Offhand - Index 67
+		this.addSlot(new Slot(playerInventory,40,11,107){
 			@Override
-			public com.mojang.datafixers.util.Pair<ResourceLocation,ResourceLocation> getNoItemIcon(){
-				return com.mojang.datafixers.util.Pair.of(InventoryMenu.BLOCK_ATLAS,EMPTY_ARMOR_SLOT_SHIELD);
+			public Pair<ResourceLocation,ResourceLocation> getNoItemIcon(){
+				return Pair.of(InventoryMenu.BLOCK_ATLAS,EMPTY_ARMOR_SLOT_SHIELD);
 			}
 		});
-		// 6. Crafting Result (vpravo dole) - Index 68
-		this.addSlot(new ResultSlot(playerInventory.player,this.craftSlots,this.resultSlots,0,226,62));
-		// 7. Crafting Grid (2x2 vpravo nahoře) - Index 69 až 72
-		for(int r=0;r<2;++r){
-			for(int c=0;c<2;++c){
-				this.addSlot(new Slot(this.craftSlots,c+r*2,216+c*18,18+r*18));
-			}
-		}
+		//Crafting Result - Index 68
+		this.addSlot(new ResultSlot(playerInventory.player,this.craftSlots,this.resultSlots,0,230,76));
+		//Crafting Grid (2x2) - Index 69 - 72
+		for(int r=0;r<2;++r)
+			for(int c=0;c<2;++c)
+				this.addSlot(new Slot(this.craftSlots,c+r*2,221+c*18,29+r*18));
 	}
 	@Override
 	public void slotsChanged(@NotNull Container container){
 		Level level=this.player.level();
 		if(!level.isClientSide){
 			CraftingInput input=this.craftSlots.asCraftInput();
-			Optional<RecipeHolder<CraftingRecipe>> recipe=Objects.requireNonNull(level.getServer()).getRecipeManager()
-					.getRecipeFor(RecipeType.CRAFTING,input,level);
-			if(recipe.isPresent()){
-				this.resultSlots.setItem(0,recipe.get().value().assemble(input,level.registryAccess()));
-			}else{
-				this.resultSlots.setItem(0,ItemStack.EMPTY);
-			}
+			Optional<RecipeHolder<CraftingRecipe>> recipe=Objects.requireNonNull(level.getServer()).getRecipeManager().getRecipeFor(RecipeType.CRAFTING,input,level);
+			if(recipe.isPresent()) this.resultSlots.setItem(0,recipe.get().value().assemble(input,level.registryAccess()));
+			else this.resultSlots.setItem(0,ItemStack.EMPTY);
 			this.broadcastChanges();
 		}
 	}
@@ -118,7 +111,7 @@ public class MtehEnderChestMenu extends AbstractContainerMenu{
 	public void removed(@NotNull Player player){
 		super.removed(player);
 		this.enderChest.stopOpen(player);
-		this.clearContainer(player,this.craftSlots); // Vyhodí nevysbírané itemy z craftingu
+		this.clearContainer(player,this.craftSlots);
 	}
 	@Override
 	public boolean stillValid(@NotNull Player player){
@@ -131,37 +124,31 @@ public class MtehEnderChestMenu extends AbstractContainerMenu{
 		if(slot.hasItem()){
 			ItemStack slotStack=slot.getItem();
 			itemstack=slotStack.copy();
-			// Pokud klikneme na Crafting Result
+			//Crafting Result:
 			if(index==68){
-				if(!this.moveItemStackTo(slotStack,27,63,true)){
+				if(!this.moveItemStackTo(slotStack,27,63,true))
 					return ItemStack.EMPTY;
-				}
 				slot.onQuickCraft(slotStack,itemstack);
 			}
-			// Z Ender Chestky (0-26) -> do Inventáře/Hotbaru
+			//Ender -> inv/Hotbar
 			else if(index<27){
-				if(!this.moveItemStackTo(slotStack,27,63,false)){
+				if(!this.moveItemStackTo(slotStack,27,63,false))
 					return ItemStack.EMPTY;
-				}
 			}
-			// Z Inventáře/Hotbaru -> do Ender Chestky
+			//inv/Hotbar -> Ender
 			else if(index<63){
-				if(!this.moveItemStackTo(slotStack,0,27,false)){
+				if(!this.moveItemStackTo(slotStack,0,27,false))
 					return ItemStack.EMPTY;
-				}
 			}
-			// Z Armoru/Offhandu/Craftingu -> do Inventáře
-			else if(!this.moveItemStackTo(slotStack,27,63,false)){
+			//Armor/offhandu/Crafting -> inv
+			else if(!this.moveItemStackTo(slotStack,27,63,false))
 				return ItemStack.EMPTY;
-			}
-			if(slotStack.isEmpty()){
+			if(slotStack.isEmpty())
 				slot.setByPlayer(ItemStack.EMPTY);
-			}else{
+			else
 				slot.setChanged();
-			}
-			if(slotStack.getCount()==itemstack.getCount()){
+			if(slotStack.getCount()==itemstack.getCount())
 				return ItemStack.EMPTY;
-			}
 			slot.onTake(player,slotStack);
 		}
 		return itemstack;
