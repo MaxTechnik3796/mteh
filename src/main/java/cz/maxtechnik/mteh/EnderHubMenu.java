@@ -20,6 +20,10 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 import java.util.Optional;
 public class EnderHubMenu extends AbstractContainerMenu{
+	public enum ShiftMode{
+		TO_ENDER,
+		TO_GRID
+	}
 	private static final EquipmentSlot[] ARMOR_SLOTS=new EquipmentSlot[]{
 			EquipmentSlot.HEAD,EquipmentSlot.CHEST,EquipmentSlot.LEGS,EquipmentSlot.FEET
 	};
@@ -35,6 +39,7 @@ public class EnderHubMenu extends AbstractContainerMenu{
 	private final CraftingContainer craftSlots=new TransientCraftingContainer(this,3,3);
 	private final ResultContainer resultSlots=new ResultContainer();
 	private final Player player;
+	private ShiftMode shiftMode=ShiftMode.TO_ENDER;
 	public EnderHubMenu(int containerId,Inventory playerInventory){
 		this(containerId,playerInventory,new SimpleContainer(27));
 	}
@@ -104,6 +109,20 @@ public class EnderHubMenu extends AbstractContainerMenu{
 			}
 		}
 	}
+	public ShiftMode getShiftMode(){
+		return this.shiftMode;
+	}
+	public void toggleShiftMode(){
+		this.shiftMode=(this.shiftMode==ShiftMode.TO_ENDER?ShiftMode.TO_GRID:ShiftMode.TO_ENDER);
+	}
+	@Override
+	public boolean clickMenuButton(@NotNull Player player,int id){
+		if(id==0){
+			this.toggleShiftMode();
+			return true;
+		}
+		return false;
+	}
 	public boolean hasCraftingTable(){
 		for(ItemStack stack: this.player.getInventory().items)
 			if(isCraftingTable(stack)) return true;
@@ -161,6 +180,58 @@ public class EnderHubMenu extends AbstractContainerMenu{
 	public boolean stillValid(@NotNull Player player){
 		return this.enderChest.stillValid(player);
 	}
+	private boolean moveToHotbarThenInv(ItemStack stack){
+		boolean moved=false;
+		if(this.moveItemStackTo(stack,54,63,false)){
+			moved=true;
+		}
+		if(!stack.isEmpty()&&this.moveItemStackTo(stack,27,54,false)){
+			moved=true;
+		}
+		return moved;
+	}
+	private boolean moveToGrid(ItemStack stack){
+		boolean hasTable=this.hasCraftingTable();
+		boolean moved=false;
+		// 1. Sloučení s existujícími položkami v aktivních slotech mřížky
+		for(int r=0;r<3;++r){
+			for(int c=0;c<3;++c){
+				if(!hasTable&&(r==2||c==2)) continue;
+				int slotIdx=69+(c+r*3);
+				Slot slot=this.slots.get(slotIdx);
+				ItemStack slotStack=slot.getItem();
+				if(!slotStack.isEmpty()&&ItemStack.isSameItemSameComponents(stack,slotStack)){
+					int max=Math.min(slot.getMaxStackSize(slotStack),stack.getMaxStackSize());
+					int space=max-slotStack.getCount();
+					if(space>0){
+						int toAdd=Math.min(stack.getCount(),space);
+						slotStack.grow(toAdd);
+						stack.shrink(toAdd);
+						slot.setChanged();
+						moved=true;
+						if(stack.isEmpty()) return true;
+					}
+				}
+			}
+		}
+		// 2. Umístění do prázdných aktivních slotů mřížky
+		for(int r=0;r<3;++r){
+			for(int c=0;c<3;++c){
+				if(!hasTable&&(r==2||c==2)) continue;
+				int slotIdx=69+(c+r*3);
+				Slot slot=this.slots.get(slotIdx);
+				if(!slot.hasItem()&&slot.mayPlace(stack)){
+					int max=Math.min(slot.getMaxStackSize(stack),stack.getMaxStackSize());
+					int toAdd=Math.min(stack.getCount(),max);
+					slot.setByPlayer(stack.split(toAdd));
+					slot.setChanged();
+					moved=true;
+					if(stack.isEmpty()) return true;
+				}
+			}
+		}
+		return moved;
+	}
 	@Override
 	public @NotNull ItemStack quickMoveStack(@NotNull Player player,int index){
 		ItemStack itemstack=ItemStack.EMPTY;
@@ -168,14 +239,29 @@ public class EnderHubMenu extends AbstractContainerMenu{
 		if(slot.hasItem()){
 			ItemStack slotStack=slot.getItem();
 			itemstack=slotStack.copy();
+			// Výstup craftingu (Index 68) -> vždy Hotbar, poté Inv
 			if(index==68){
-				if(!this.moveItemStackTo(slotStack,27,63,true)) return ItemStack.EMPTY;
+				if(!this.moveToHotbarThenInv(slotStack)) return ItemStack.EMPTY;
 				slot.onQuickCraft(slotStack,itemstack);
-			}else if(index<27){
-				if(!this.moveItemStackTo(slotStack,27,63,false)) return ItemStack.EMPTY;
-			}else if(index<63){
-				if(!this.moveItemStackTo(slotStack,0,27,false)) return ItemStack.EMPTY;
-			}else if(!this.moveItemStackTo(slotStack,27,63,false)) return ItemStack.EMPTY;
+			}else if(this.shiftMode==ShiftMode.TO_GRID){
+				// Režim 2: Vše směřuje do Crafting Gridu
+				if(index>=69&&index<=77){
+					// Kliknuto přímo v gridu -> vysunout do Hotbar / Inv
+					if(!this.moveToHotbarThenInv(slotStack)) return ItemStack.EMPTY;
+				}else{
+					// hot / inv / ender / armor / offhand -> grid
+					if(!this.moveToGrid(slotStack)) return ItemStack.EMPTY;
+				}
+			}else{
+				// Režim 1: Výchozí skladovací režim
+				if(index>=27&&index<63){
+					// hot / inv -> ender
+					if(!this.moveItemStackTo(slotStack,0,27,false)) return ItemStack.EMPTY;
+				}else{
+					// ender (0-26), armor (63-66), offhand (67), grid (69-77) -> hot, pak inv
+					if(!this.moveToHotbarThenInv(slotStack)) return ItemStack.EMPTY;
+				}
+			}
 			if(slotStack.isEmpty()) slot.setByPlayer(ItemStack.EMPTY);
 			else slot.setChanged();
 			if(slotStack.getCount()==itemstack.getCount()) return ItemStack.EMPTY;
