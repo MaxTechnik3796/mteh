@@ -1,13 +1,16 @@
 package cz.maxtechnik.mteh;
 
 import com.mojang.logging.LogUtils;
+import net.minecraft.nbt.CompoundTag;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.InterModComms;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.event.lifecycle.InterModEnqueueEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
@@ -27,6 +30,7 @@ public class MtehMod{
 	public MtehMod(IEventBus bus){
 		bus.addListener(this::commonSetup);
 		bus.addListener(this::registerPayloads);
+		bus.addListener(this::enqueueIMC);
 		NeoForge.EVENT_BUS.register(this);
 	}
 	private void registerPayloads(RegisterPayloadHandlersEvent event){
@@ -39,6 +43,14 @@ public class MtehMod{
 	}
 	private void commonSetup(final FMLCommonSetupEvent event){
 		LOGGER.info("MT-EnderHub: Common Setup");
+	}
+	private void enqueueIMC(final InterModEnqueueEvent event){
+		CompoundTag tag=new CompoundTag();
+		tag.putString("ContainerClass","cz.maxtechnik.mteh.EnderHubMenu");
+		tag.putInt("GridSlotNumber",69);
+		tag.putInt("GridSize",9);
+		tag.putString("AlignToGrid","up");
+		InterModComms.sendTo("craftingtweaks","RegisterProvider",()->tag);
 	}
 	@SubscribeEvent
 	public void onServerStarting(ServerStartingEvent event){

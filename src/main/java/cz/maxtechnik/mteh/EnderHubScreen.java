@@ -12,7 +12,6 @@ import org.jetbrains.annotations.NotNull;
 public class EnderHubScreen extends AbstractContainerScreen<EnderHubMenu>{
 	private static final ResourceLocation CONTAINER_BACKGROUND=ResourceLocation.withDefaultNamespace("textures/gui/container/generic_54.png");
 	private static final ResourceLocation ENDER_HUB_BACKGROUND=ResourceLocation.fromNamespaceAndPath(MtehMod.MODID,"textures/gui/container/ender_hub.png");
-	private Button modeButton;
 	public EnderHubScreen(EnderHubMenu menu,Inventory playerInventory,Component title){
 		super(menu,playerInventory,title);
 		this.imageWidth=277;
@@ -27,19 +26,16 @@ public class EnderHubScreen extends AbstractContainerScreen<EnderHubMenu>{
 		super.init();
 		int x=(this.width-this.imageWidth)/2;
 		int y=(this.height-this.imageHeight)/2;
-		this.modeButton=Button.builder(this.getButtonText(),button->{
+		Button modeButton=Button.builder(this.getButtonText(),button->{
 					this.menu.toggleShiftMode();
-					if(this.minecraft!=null&&this.minecraft.gameMode!=null){
-						// Odešle vanillový ServerboundButtonClickPacket(containerId, 0)
-						this.minecraft.gameMode.handleInventoryButtonClick(this.menu.containerId,0);
-					}
+					if(this.minecraft!=null&&this.minecraft.gameMode!=null) this.minecraft.gameMode.handleInventoryButtonClick(this.menu.containerId,0);
 					button.setMessage(this.getButtonText());
 					button.setTooltip(this.getButtonTooltip());
 				})
 				.bounds(x+220,y+122,54,16)
 				.tooltip(this.getButtonTooltip())
 				.build();
-		this.addRenderableWidget(this.modeButton);
+		this.addRenderableWidget(modeButton);
 	}
 	private Component getButtonText(){
 		return Component.literal(this.menu.getShiftMode()==EnderHubMenu.ShiftMode.TO_ENDER?"§bEnder":"§6Grid");
