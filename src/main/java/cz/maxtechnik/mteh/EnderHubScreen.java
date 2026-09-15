@@ -34,11 +34,14 @@ public class EnderHubScreen extends AbstractContainerScreen<EnderHubMenu>{
 		}).bounds(x+220,y+122,54,16).tooltip(this.getButtonTooltip()).build();
 		this.addRenderableWidget(modeButton);
 	}
+	private boolean isEnder(){
+		return this.menu.getShiftMode().equals(EnderHubMenu.ShiftMode.TO_ENDER);
+	}
 	private Component getButtonText(){
-		return Component.translatable(this.menu.getShiftMode().equals(EnderHubMenu.ShiftMode.TO_ENDER)?"button.mteh.ender":"button.mteh.grid");
+		return Component.translatable(isEnder()?"button.mteh.ender":"button.mteh.grid").withStyle(isEnder()?ChatFormatting.AQUA:ChatFormatting.GOLD);
 	}
 	private Tooltip getButtonTooltip(){
-		return Tooltip.create(Component.translatable(this.menu.getShiftMode().equals(EnderHubMenu.ShiftMode.TO_ENDER)?"tooltip.mteh.ender":"tooltip.mteh.grid"));
+		return Tooltip.create(Component.translatable(isEnder()?"tooltip.mteh.ender":"tooltip.mteh.grid"));
 	}
 	@Override
 	protected void renderBg(GuiGraphics guiGraphics,float partialTick,int mouseX,int mouseY){

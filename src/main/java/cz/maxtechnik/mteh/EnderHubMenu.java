@@ -239,7 +239,7 @@ public class EnderHubMenu extends AbstractContainerMenu{
 			if(index==68){
 				if(this.moveToHotbarThenInv(slotStack)) return ItemStack.EMPTY;
 				slot.onQuickCraft(slotStack,itemstack);
-			}else if(this.shiftMode==ShiftMode.TO_GRID){
+			}else if(this.shiftMode.equals(ShiftMode.TO_GRID)){
 				if(index>=69&&index<=77){
 					if(this.moveToHotbarThenInv(slotStack)) return ItemStack.EMPTY;
 				}else{
