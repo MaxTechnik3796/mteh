@@ -27,25 +27,18 @@ public class EnderHubScreen extends AbstractContainerScreen<EnderHubMenu>{
 		int x=(this.width-this.imageWidth)/2;
 		int y=(this.height-this.imageHeight)/2;
 		Button modeButton=Button.builder(this.getButtonText(),button->{
-					this.menu.toggleShiftMode();
-					if(this.minecraft!=null&&this.minecraft.gameMode!=null) this.minecraft.gameMode.handleInventoryButtonClick(this.menu.containerId,0);
-					button.setMessage(this.getButtonText());
-					button.setTooltip(this.getButtonTooltip());
-				})
-				.bounds(x+220,y+122,54,16)
-				.tooltip(this.getButtonTooltip())
-				.build();
+			this.menu.toggleShiftMode();
+			if(this.minecraft!=null&&this.minecraft.gameMode!=null) this.minecraft.gameMode.handleInventoryButtonClick(this.menu.containerId,0);
+			button.setMessage(this.getButtonText());
+			button.setTooltip(this.getButtonTooltip());
+		}).bounds(x+220,y+122,54,16).tooltip(this.getButtonTooltip()).build();
 		this.addRenderableWidget(modeButton);
 	}
 	private Component getButtonText(){
-		return Component.literal(this.menu.getShiftMode()==EnderHubMenu.ShiftMode.TO_ENDER?"§bEnder":"§6Grid");
+		return Component.translatable(this.menu.getShiftMode().equals(EnderHubMenu.ShiftMode.TO_ENDER)?"button.mteh.ender":"button.mteh.grid");
 	}
 	private Tooltip getButtonTooltip(){
-		return Tooltip.create(Component.literal(
-				this.menu.getShiftMode()==EnderHubMenu.ShiftMode.TO_ENDER
-						?"Shift-Click mode: Ender Chest\nClick to target Crafting Grid"
-						:"Shift-Click mode: Crafting Grid\nClick to target Ender Chest"
-		));
+		return Tooltip.create(Component.translatable(this.menu.getShiftMode().equals(EnderHubMenu.ShiftMode.TO_ENDER)?"tooltip.mteh.ender":"tooltip.mteh.grid"));
 	}
 	@Override
 	protected void renderBg(GuiGraphics guiGraphics,float partialTick,int mouseX,int mouseY){

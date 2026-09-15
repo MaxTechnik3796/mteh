@@ -1,4 +1,8 @@
 {
 	"tooltip.mteh.missing_crafting_table":"Required: Crafting Table",
-	"container.mteh.ender_hub":"Ender Hub"
+	"container.mteh.ender_hub":"EnderHub",
+	"button.mteh.ender":"§bEnder",
+	"button.mteh.grid":"§6Grid",
+	"tooltip.mteh.ender":"Shift-Click mode: EnderHub",
+	"tooltip.mteh.grid":"Shift-Click mode: Crafting Grid"
 }

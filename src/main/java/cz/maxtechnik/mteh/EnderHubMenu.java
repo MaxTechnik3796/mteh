@@ -118,7 +118,7 @@ public class EnderHubMenu extends AbstractContainerMenu{
 		return this.shiftMode;
 	}
 	public void toggleShiftMode(){
-		this.shiftMode=(this.shiftMode==ShiftMode.TO_ENDER?ShiftMode.TO_GRID:ShiftMode.TO_ENDER);
+		this.shiftMode=(this.shiftMode.equals(ShiftMode.TO_ENDER)?ShiftMode.TO_GRID:ShiftMode.TO_ENDER);
 		SAVED_MODES.put(this.player.getUUID(),this.shiftMode);
 	}
 	@Override
@@ -130,12 +130,12 @@ public class EnderHubMenu extends AbstractContainerMenu{
 		return false;
 	}
 	public boolean hasCraftingTable(){
-		for(ItemStack stack: this.player.getInventory().items)
-			if(isCraftingTable(stack)) return true;
-		for(ItemStack stack: this.player.getInventory().offhand)
-			if(isCraftingTable(stack)) return true;
-		for(ItemStack stack: this.player.getInventory().armor)
-			if(isCraftingTable(stack)) return true;
+		for(ItemStack itemStack: this.player.getInventory().items)
+			if(isCraftingTable(itemStack)) return true;
+		for(ItemStack itemStack: this.player.getInventory().offhand)
+			if(isCraftingTable(itemStack)) return true;
+		for(ItemStack itemStack: this.player.getInventory().armor)
+			if(isCraftingTable(itemStack)) return true;
 		for(int i=0;i<this.enderChest.getContainerSize();++i)
 			if(isCraftingTable(this.enderChest.getItem(i))) return true;
 		return false;
@@ -168,9 +168,7 @@ public class EnderHubMenu extends AbstractContainerMenu{
 				}
 			}
 			CraftingInput input=this.craftSlots.asCraftInput();
-			Optional<RecipeHolder<CraftingRecipe>> recipe=Objects.requireNonNull(level.getServer())
-					.getRecipeManager()
-					.getRecipeFor(RecipeType.CRAFTING,input,level);
+			Optional<RecipeHolder<CraftingRecipe>> recipe=Objects.requireNonNull(level.getServer()).getRecipeManager().getRecipeFor(RecipeType.CRAFTING,input,level);
 			if(recipe.isPresent()) this.resultSlots.setItem(0,recipe.get().value().assemble(input,level.registryAccess()));
 			else this.resultSlots.setItem(0,ItemStack.EMPTY);
 			this.broadcastChanges();
@@ -186,14 +184,12 @@ public class EnderHubMenu extends AbstractContainerMenu{
 	public boolean stillValid(@NotNull Player player){
 		return this.enderChest.stillValid(player);
 	}
-	private boolean moveToHotbarThenInv(ItemStack stack){
-		boolean moved=this.moveItemStackTo(stack,54,63,false);
-		if(!stack.isEmpty()&&this.moveItemStackTo(stack,27,54,false)){
-			moved=true;
-		}
+	private boolean moveToHotbarThenInv(ItemStack itemStack){
+		boolean moved=this.moveItemStackTo(itemStack,54,63,false);
+		if(!itemStack.isEmpty()&&this.moveItemStackTo(itemStack,27,54,false)) moved=true;
 		return !moved;
 	}
-	private boolean moveToGrid(ItemStack stack){
+	private boolean moveToGrid(ItemStack itemStack){
 		boolean hasTable=this.hasCraftingTable();
 		boolean moved=false;
 		for(int r=0;r<3;++r){
@@ -202,16 +198,16 @@ public class EnderHubMenu extends AbstractContainerMenu{
 				int slotIdx=69+(c+r*3);
 				Slot slot=this.slots.get(slotIdx);
 				ItemStack slotStack=slot.getItem();
-				if(!slotStack.isEmpty()&&ItemStack.isSameItemSameComponents(stack,slotStack)){
-					int max=Math.min(slot.getMaxStackSize(slotStack),stack.getMaxStackSize());
+				if(!slotStack.isEmpty()&&ItemStack.isSameItemSameComponents(itemStack,slotStack)){
+					int max=Math.min(slot.getMaxStackSize(slotStack),itemStack.getMaxStackSize());
 					int space=max-slotStack.getCount();
 					if(space>0){
-						int toAdd=Math.min(stack.getCount(),space);
+						int toAdd=Math.min(itemStack.getCount(),space);
 						slotStack.grow(toAdd);
-						stack.shrink(toAdd);
+						itemStack.shrink(toAdd);
 						slot.setChanged();
 						moved=true;
-						if(stack.isEmpty()) return true;
+						if(itemStack.isEmpty()) return true;
 					}
 				}
 			}
@@ -221,13 +217,13 @@ public class EnderHubMenu extends AbstractContainerMenu{
 				if(!hasTable&&(r==2||c==2)) continue;
 				int slotIdx=69+(c+r*3);
 				Slot slot=this.slots.get(slotIdx);
-				if(!slot.hasItem()&&slot.mayPlace(stack)){
-					int max=Math.min(slot.getMaxStackSize(stack),stack.getMaxStackSize());
-					int toAdd=Math.min(stack.getCount(),max);
-					slot.setByPlayer(stack.split(toAdd));
+				if(!slot.hasItem()&&slot.mayPlace(itemStack)){
+					int max=Math.min(slot.getMaxStackSize(itemStack),itemStack.getMaxStackSize());
+					int toAdd=Math.min(itemStack.getCount(),max);
+					slot.setByPlayer(itemStack.split(toAdd));
 					slot.setChanged();
 					moved=true;
-					if(stack.isEmpty()) return true;
+					if(itemStack.isEmpty()) return true;
 				}
 			}
 		}
