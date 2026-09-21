@@ -6,8 +6,10 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.InterModComms;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.event.lifecycle.InterModEnqueueEvent;
@@ -27,11 +29,12 @@ public class MtehMod{
 	public static final String MODID="mteh";
 	public static final Logger LOGGER=LogUtils.getLogger();
 	public static final Set<UUID> PENDING_ENDER_HUB=Collections.synchronizedSet(new HashSet<>());
-	public MtehMod(IEventBus bus){
+	public MtehMod(IEventBus bus,ModContainer modContainer){
 		bus.addListener(this::commonSetup);
 		bus.addListener(this::registerPayloads);
 		bus.addListener(this::enqueueIMC);
 		NeoForge.EVENT_BUS.register(this);
+		modContainer.registerConfig(ModConfig.Type.SERVER,MtehServerConfig.SPEC);
 	}
 	private void registerPayloads(RegisterPayloadHandlersEvent event){
 		PayloadRegistrar registrar=event.registrar("1").optional();
