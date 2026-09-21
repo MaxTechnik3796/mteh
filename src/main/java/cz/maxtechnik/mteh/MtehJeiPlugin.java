@@ -1,5 +1,6 @@
 package cz.maxtechnik.mteh;
 
+import cz.maxtechnik.mteh.gui.EnderHubMenu;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.RecipeTypes;

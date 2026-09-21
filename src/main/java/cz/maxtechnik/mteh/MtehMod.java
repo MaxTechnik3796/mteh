@@ -46,7 +46,7 @@ public class MtehMod{
 	}
 	private void enqueueIMC(final InterModEnqueueEvent event){
 		CompoundTag tag=new CompoundTag();
-		tag.putString("ContainerClass","cz.maxtechnik.mteh.EnderHubMenu");
+		tag.putString("ContainerClass","cz.maxtechnik.mteh.gui.EnderHubMenu");
 		tag.putInt("GridSlotNumber",69);
 		tag.putInt("GridSize",9);
 		tag.putString("AlignToGrid","up");

@@ -1,4 +1,4 @@
-package cz.maxtechnik.mteh;
+package cz.maxtechnik.mteh.gui;
 
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.resources.ResourceLocation;
@@ -23,11 +23,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 public class EnderHubMenu extends AbstractContainerMenu{
-	public enum ShiftMode{
-		TO_ENDER,
-		TO_GRID
-	}
-	private static final Map<UUID,ShiftMode> SAVED_MODES=new ConcurrentHashMap<>();
+	private static final Map<UUID,Boolean> SHIFT_MODES=new ConcurrentHashMap<>();
+	private static final Map<UUID,Boolean> GRID_MODES=new ConcurrentHashMap<>();
 	private static final EquipmentSlot[] ARMOR_SLOTS=new EquipmentSlot[]{
 			EquipmentSlot.HEAD,EquipmentSlot.CHEST,EquipmentSlot.LEGS,EquipmentSlot.FEET
 	};
@@ -43,7 +40,8 @@ public class EnderHubMenu extends AbstractContainerMenu{
 	private final CraftingContainer craftSlots=new TransientCraftingContainer(this,3,3);
 	private final ResultContainer resultSlots=new ResultContainer();
 	private final Player player;
-	private ShiftMode shiftMode;
+	private boolean shiftMode;
+	private boolean gridMode;
 	public EnderHubMenu(int containerId,Inventory playerInventory){
 		this(containerId,playerInventory,new SimpleContainer(27));
 	}
@@ -51,7 +49,8 @@ public class EnderHubMenu extends AbstractContainerMenu{
 		super(MenuType.GENERIC_9x3,containerId);
 		this.enderChest=enderChest;
 		this.player=playerInventory.player;
-		this.shiftMode=SAVED_MODES.getOrDefault(this.player.getUUID(),ShiftMode.TO_ENDER);
+		this.shiftMode=SHIFT_MODES.getOrDefault(this.player.getUUID(),false);
+		this.gridMode=GRID_MODES.getOrDefault(this.player.getUUID(),false);
 		// Ender (3x9) - Index 0 - 26
 		for(int row=0;row<3;++row){
 			for(int col=0;col<9;++col){
@@ -114,20 +113,35 @@ public class EnderHubMenu extends AbstractContainerMenu{
 			}
 		}
 	}
-	public ShiftMode getShiftMode(){
+	public boolean getShiftMode(){
 		return this.shiftMode;
 	}
+	public boolean getGridMode(){
+		return this.gridMode;
+	}
 	public void toggleShiftMode(){
-		this.shiftMode=(this.shiftMode.equals(ShiftMode.TO_ENDER)?ShiftMode.TO_GRID:ShiftMode.TO_ENDER);
-		SAVED_MODES.put(this.player.getUUID(),this.shiftMode);
+		this.shiftMode=!this.shiftMode;
+		SHIFT_MODES.put(this.player.getUUID(),this.shiftMode);
+	}
+	public void toggleGridMode(){
+		this.gridMode=!this.gridMode;
+		GRID_MODES.put(this.player.getUUID(),this.gridMode);
 	}
 	@Override
 	public boolean clickMenuButton(@NotNull Player player,int id){
-		if(id==0){
-			this.toggleShiftMode();
-			return true;
+		switch(id){
+			case 0 -> {
+				this.toggleShiftMode();
+				return true;
+			}
+			case 1 -> {
+				this.toggleGridMode();
+				return true;
+			}
+			default -> {
+				return false;
+			}
 		}
-		return false;
 	}
 	public boolean hasCraftingTable(){
 		for(ItemStack itemStack: this.player.getInventory().items)
@@ -189,6 +203,9 @@ public class EnderHubMenu extends AbstractContainerMenu{
 		if(!itemStack.isEmpty()&&this.moveItemStackTo(itemStack,27,54,false)) moved=true;
 		return !moved;
 	}
+	private boolean moveToEnder(ItemStack itemStack){
+		return !this.moveItemStackTo(itemStack,0,27,false);
+	}
 	private boolean moveToGrid(ItemStack itemStack){
 		boolean hasTable=this.hasCraftingTable();
 		boolean moved=false;
@@ -207,7 +224,7 @@ public class EnderHubMenu extends AbstractContainerMenu{
 						itemStack.shrink(toAdd);
 						slot.setChanged();
 						moved=true;
-						if(itemStack.isEmpty()) return true;
+						if(itemStack.isEmpty()) return false;
 					}
 				}
 			}
@@ -223,11 +240,14 @@ public class EnderHubMenu extends AbstractContainerMenu{
 					slot.setByPlayer(itemStack.split(toAdd));
 					slot.setChanged();
 					moved=true;
-					if(itemStack.isEmpty()) return true;
+					if(itemStack.isEmpty()) return false;
 				}
 			}
 		}
-		return moved;
+		return !moved;
+	}
+	private boolean inRange(int index,int min,int max){
+		return min<=index&&index<=max;
 	}
 	@Override
 	public @NotNull ItemStack quickMoveStack(@NotNull Player player,int index){
@@ -236,26 +256,64 @@ public class EnderHubMenu extends AbstractContainerMenu{
 		if(slot.hasItem()){
 			ItemStack slotStack=slot.getItem();
 			itemstack=slotStack.copy();
-			if(index==68){
-				if(this.moveToHotbarThenInv(slotStack)) return ItemStack.EMPTY;
-				slot.onQuickCraft(slotStack,itemstack);
-			}else if(this.shiftMode.equals(ShiftMode.TO_GRID)){
-				if(index>=69&&index<=77){
-					if(this.moveToHotbarThenInv(slotStack)) return ItemStack.EMPTY;
+			if(inRange(index,69,77)){ // Crafting Grid
+				if(this.gridMode){
+					if(this.moveToEnder(slotStack)){
+						return ItemStack.EMPTY;
+					}
 				}else{
-					if(!this.moveToGrid(slotStack)) return ItemStack.EMPTY;
+					if(this.moveToHotbarThenInv(slotStack)){
+						return ItemStack.EMPTY;
+					}
 				}
-			}else{
-				if(index>=27&&index<63){
-					if(!this.moveItemStackTo(slotStack,0,27,false)) return ItemStack.EMPTY;
+			}else if(index==68){ // Crafting Result
+				slotStack.getItem().onCraftedBy(slotStack,player.level(),player);
+				if(this.gridMode){
+					if(this.moveToEnder(slotStack)){
+						return ItemStack.EMPTY;
+					}
 				}else{
-					if(this.moveToHotbarThenInv(slotStack)) return ItemStack.EMPTY;
+					if(this.moveToHotbarThenInv(slotStack)){
+						return ItemStack.EMPTY;
+					}
+				}
+				slot.onQuickCraft(slotStack,itemstack);
+			}else if(inRange(index,63,67)){ // Armor & Offhand
+				if(this.shiftMode){
+					if(this.moveToGrid(slotStack)){
+						return ItemStack.EMPTY;
+					}
+				}else{
+					if(this.moveToHotbarThenInv(slotStack)){
+						return ItemStack.EMPTY;
+					}
+				}
+			}else if(inRange(index,27,62)){ // Hotbar & Inv
+				if(this.shiftMode){
+					if(this.moveToGrid(slotStack)){
+						return ItemStack.EMPTY;
+					}
+				}else{
+					if(this.moveToEnder(slotStack)){
+						return ItemStack.EMPTY;
+					}
+				}
+			}else if(inRange(index,0,26)){ // Ender Chest
+				if(this.shiftMode){
+					if(this.moveToGrid(slotStack)){
+						return ItemStack.EMPTY;
+					}
+				}else{
+					if(this.moveToHotbarThenInv(slotStack)){
+						return ItemStack.EMPTY;
+					}
 				}
 			}
 			if(slotStack.isEmpty()) slot.setByPlayer(ItemStack.EMPTY);
 			else slot.setChanged();
 			if(slotStack.getCount()==itemstack.getCount()) return ItemStack.EMPTY;
 			slot.onTake(player,slotStack);
+			if(index==68) player.drop(slotStack,false);
 		}
 		return itemstack;
 	}

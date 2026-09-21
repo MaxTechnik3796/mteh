@@ -1,5 +1,6 @@
-package cz.maxtechnik.mteh;
+package cz.maxtechnik.mteh.gui;
 
+import cz.maxtechnik.mteh.MtehMod;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -26,22 +27,40 @@ public class EnderHubScreen extends AbstractContainerScreen<EnderHubMenu>{
 		super.init();
 		int x=(this.width-this.imageWidth)/2;
 		int y=(this.height-this.imageHeight)/2;
-		Button modeButton=Button.builder(this.getButtonText(),button->{
+		Button shiftButton=Button.builder(this.getShiftButtonText(),button->{
 			this.menu.toggleShiftMode();
 			if(this.minecraft!=null&&this.minecraft.gameMode!=null) this.minecraft.gameMode.handleInventoryButtonClick(this.menu.containerId,0);
-			button.setMessage(this.getButtonText());
-			button.setTooltip(this.getButtonTooltip());
-		}).bounds(x+220,y+122,54,16).tooltip(this.getButtonTooltip()).build();
-		this.addRenderableWidget(modeButton);
+			button.setMessage(this.getShiftButtonText());
+			button.setTooltip(this.getShiftButtonTooltip());
+		}).bounds(x+220,y+122,54,16).tooltip(this.getShiftButtonTooltip()).build();
+		this.addRenderableWidget(shiftButton);
+
+		Button gridButton=Button.builder(this.getGridButtonText(),button->{
+			this.menu.toggleGridMode();
+			if(this.minecraft!=null&&this.minecraft.gameMode!=null) this.minecraft.gameMode.handleInventoryButtonClick(this.menu.containerId,1);
+			button.setMessage(this.getGridButtonText());
+			button.setTooltip(this.getGridButtonTooltip());
+		}).bounds(x+220,y+138,54,16).tooltip(this.getShiftButtonTooltip()).build();
+		this.addRenderableWidget(gridButton);
+
 	}
-	private boolean isEnder(){
-		return this.menu.getShiftMode().equals(EnderHubMenu.ShiftMode.TO_ENDER);
+	private boolean isShiftToGrid(){
+		return this.menu.getShiftMode();
 	}
-	private Component getButtonText(){
-		return Component.translatable(isEnder()?"button.mteh.ender":"button.mteh.grid").withStyle(isEnder()?ChatFormatting.AQUA:ChatFormatting.GOLD);
+	private Component getShiftButtonText(){
+		return Component.translatable(isShiftToGrid()?"button.mteh.shift.grid":"button.mteh.shift.ender").withStyle(isShiftToGrid()?ChatFormatting.GOLD:ChatFormatting.AQUA);
 	}
-	private Tooltip getButtonTooltip(){
-		return Tooltip.create(Component.translatable(isEnder()?"tooltip.mteh.ender":"tooltip.mteh.grid"));
+	private Tooltip getShiftButtonTooltip(){
+		return Tooltip.create(Component.translatable(isShiftToGrid()?"tooltip.mteh.shift.grid":"tooltip.mteh.shift.ender"));
+	}
+	private boolean isGridToEnder(){
+		return this.menu.getGridMode();
+	}
+	private Component getGridButtonText(){
+		return Component.translatable(isGridToEnder()?"button.mteh.grid.ender":"button.mteh.grid.inv").withStyle(isGridToEnder()?ChatFormatting.AQUA:ChatFormatting.YELLOW);
+	}
+	private Tooltip getGridButtonTooltip(){
+		return Tooltip.create(Component.translatable(isGridToEnder()?"tooltip.mteh.grid.ender":"tooltip.mteh.grid.inv"));
 	}
 	@Override
 	protected void renderBg(GuiGraphics guiGraphics,float partialTick,int mouseX,int mouseY){

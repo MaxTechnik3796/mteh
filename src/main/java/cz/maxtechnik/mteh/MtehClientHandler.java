@@ -1,5 +1,7 @@
 package cz.maxtechnik.mteh;
 
+import cz.maxtechnik.mteh.gui.EnderHubMenu;
+import cz.maxtechnik.mteh.gui.EnderHubScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 public class MtehClientHandler{

@@ -1,6 +1,6 @@
 package cz.maxtechnik.mteh.mixin;
 
-import cz.maxtechnik.mteh.EnderHubMenu;
+import cz.maxtechnik.mteh.gui.EnderHubMenu;
 import cz.maxtechnik.mteh.MtehMod;
 import cz.maxtechnik.mteh.MtehModPackets;
 import net.minecraft.network.chat.Component;
