@@ -32,17 +32,15 @@ public class EnderHubScreen extends AbstractContainerScreen<EnderHubMenu>{
 			if(this.minecraft!=null&&this.minecraft.gameMode!=null) this.minecraft.gameMode.handleInventoryButtonClick(this.menu.containerId,0);
 			button.setMessage(this.getShiftButtonText());
 			button.setTooltip(this.getShiftButtonTooltip());
-		}).bounds(x+220,y+122,54,16).tooltip(this.getShiftButtonTooltip()).build();
+		}).bounds(x+215,y+122,60,16).tooltip(this.getShiftButtonTooltip()).build();
 		this.addRenderableWidget(shiftButton);
-
 		Button gridButton=Button.builder(this.getGridButtonText(),button->{
 			this.menu.toggleGridMode();
 			if(this.minecraft!=null&&this.minecraft.gameMode!=null) this.minecraft.gameMode.handleInventoryButtonClick(this.menu.containerId,1);
 			button.setMessage(this.getGridButtonText());
 			button.setTooltip(this.getGridButtonTooltip());
-		}).bounds(x+220,y+138,54,16).tooltip(this.getShiftButtonTooltip()).build();
+		}).bounds(x+215,y+140,60,16).tooltip(this.getGridButtonTooltip()).build();
 		this.addRenderableWidget(gridButton);
-
 	}
 	private boolean isShiftToGrid(){
 		return this.menu.getShiftMode();

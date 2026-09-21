@@ -1,12 +1,12 @@
 {
-	"tooltip.mteh.missing_crafting_table":"Required: Crafting Table",
 	"container.mteh.ender_hub":"EnderHub",
+	"tooltip.mteh.missing_crafting_table":"Required: Crafting Table",
 	"button.mteh.shift.ender":"Ender",
 	"button.mteh.shift.grid":"Grid",
 	"tooltip.mteh.shift.ender":"Shift-Click mode: EnderHub",
 	"tooltip.mteh.shift.grid":"Shift-Click mode: Crafting Grid",
 	"button.mteh.grid.inv":"Inventory",
-	"button.mteh.grid.ender":"EnderHub",
+	"button.mteh.grid.ender":"Ender",
 	"tooltip.mteh.grid.inv":"Shift-Craft mode: Inventory",
 	"tooltip.mteh.grid.ender":"Shift-Craft mode: EnderHub"
 }
