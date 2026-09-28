@@ -34,7 +34,7 @@ public class MtehMod{
 		bus.addListener(this::registerPayloads);
 		bus.addListener(this::enqueueIMC);
 		NeoForge.EVENT_BUS.register(this);
-		modContainer.registerConfig(ModConfig.Type.SERVER,MtehServerConfig.SPEC);
+		modContainer.registerConfig(ModConfig.Type.SERVER,MtehModServerConfig.SPEC);
 	}
 	private void registerPayloads(RegisterPayloadHandlersEvent event){
 		PayloadRegistrar registrar=event.registrar("1").optional();

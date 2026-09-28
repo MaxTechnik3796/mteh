@@ -2,7 +2,7 @@ package cz.maxtechnik.mteh.gui;
 
 import com.mojang.datafixers.util.Pair;
 import cz.maxtechnik.mteh.MtehMod;
-import cz.maxtechnik.mteh.MtehServerConfig;
+import cz.maxtechnik.mteh.MtehModServerConfig;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.Container;
@@ -146,7 +146,7 @@ public class EnderHubMenu extends AbstractContainerMenu{
 		}
 	}
 	public boolean hasCraftingTable(){
-		if(!MtehServerConfig.REQUIRE_CRAFTING_TABLE.get()) return true;
+		if(!MtehModServerConfig.REQUIRE_CRAFTING_TABLE.get()) return true;
 		for(ItemStack itemStack: this.player.getInventory().items)
 			if(isCraftingTable(itemStack)) return true;
 		for(ItemStack itemStack: this.player.getInventory().offhand)
@@ -159,7 +159,7 @@ public class EnderHubMenu extends AbstractContainerMenu{
 	}
 	private boolean isCraftingTable(ItemStack itemStack){
 		if(itemStack==null||itemStack.isEmpty()) return false;
-		return itemStack.is(ItemTags.create(ResourceLocation.parse(MtehServerConfig.CRAFTING_TABLE_TAG.get())));
+		return itemStack.is(ItemTags.create(ResourceLocation.parse(MtehModServerConfig.CRAFTING_TABLE_TAG.get())));
 	}
 	@Override
 	public void clicked(int slotId,int button,@NotNull ClickType clickType,@NotNull Player player){
@@ -256,7 +256,7 @@ public class EnderHubMenu extends AbstractContainerMenu{
 	public @NotNull ItemStack quickMoveStack(@NotNull Player player,int index){
 		ItemStack itemstack=ItemStack.EMPTY;
 		Slot slot=this.slots.get(index);
-		if(MtehServerConfig.DEBUG.get()) MtehMod.LOGGER.debug("Slot index: [{}] ShiftMode: [{}] GridMode: [{}]",index,this.shiftMode,this.gridMode);
+		if(MtehModServerConfig.DEBUG.get()) MtehMod.LOGGER.debug("Slot index: [{}] ShiftMode: [{}] GridMode: [{}]",index,this.shiftMode,this.gridMode);
 		if(slot.hasItem()){
 			ItemStack slotStack=slot.getItem();
 			itemstack=slotStack.copy();

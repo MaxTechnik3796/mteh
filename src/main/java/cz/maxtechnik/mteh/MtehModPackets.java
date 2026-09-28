@@ -20,7 +20,7 @@ public class MtehModPackets{
 			return TYPE;
 		}
 		public static void handleClient(OpenEnderChestPayload payload,IPayloadContext context){
-			context.enqueueWork(()->MtehClientHandler.openScreen(payload.containerId()));
+			context.enqueueWork(()->MtehModClientHandler.openScreen(payload.containerId()));
 		}
 	}
 }

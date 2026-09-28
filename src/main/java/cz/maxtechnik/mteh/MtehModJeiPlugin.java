@@ -9,7 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 @SuppressWarnings("unused")
 @JeiPlugin
-public class MtehJeiPlugin implements IModPlugin{
+public class MtehModJeiPlugin implements IModPlugin{
 	public static final ResourceLocation PLUGIN_UID=ResourceLocation.fromNamespaceAndPath(MtehMod.MODID,"jei_plugin");
 	@Override
 	public @NotNull ResourceLocation getPluginUid(){

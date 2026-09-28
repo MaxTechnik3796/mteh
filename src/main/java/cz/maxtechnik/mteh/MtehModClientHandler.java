@@ -4,7 +4,7 @@ import cz.maxtechnik.mteh.gui.EnderHubMenu;
 import cz.maxtechnik.mteh.gui.EnderHubScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-public class MtehClientHandler{
+public class MtehModClientHandler{
 	public static void openScreen(int containerId){
 		Minecraft mc=Minecraft.getInstance();
 		if(mc.player!=null){
