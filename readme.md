@@ -1,28 +1,25 @@
-# MT-EnderHub (MTEH)
-MT-EnderHub transforms the vanilla Ender Chest into an all-in-one personal workstation, merging chest storage, equipment management, and dynamic crafting into a single unified interface.
+# 🟣 MT-EnderHub
 
-**Features**
-- Unified Workspace: Access your 27-slot Ender Chest, player inventory, and hotbar simultaneously without toggling screens.
+MT-EnderHub transforms a standard Ender Chest into a personal workstation that combines storage, equipment management, and crafting table into a single interface.
 
-- Full Equipment Access: Manage all 4 Armor slots and the Offhand slot directly inside the Ender Chest GUI.
+***
 
-- Dynamic 3x3 Crafting Grid:
+📦 CurseForge: [[Here]](https://www.curseforge.com/minecraft/mc-mods/mteh)
 
-  - 2x2 by Default: A built-in 2x2 crafting grid is always available.
-  - Smart 3x3 Unlock: Automatically expands into a full 3x3 Crafting Table whenever a Crafting Table item is present in your inventory or Ender Chest.
-  - Safe Item Handling: If the Crafting Table is removed, items placed in the extra 5 slots are safely returned to your inventory without any loss.
-  - Visual Feedback: Locked slots display an overlay and tooltip indicating that a Crafting Table is required.
+💬 Discord: [[Here]](https://discord.gg/mjVprFtWTk)
 
--Seamless Compatibility: Intercepts Ender Chest openings from vanilla blocks, keybinds, and modded items (such as Ender pouches or backpacks).
+***
+
+**✨ Features**
+
+*   Full Equipment Access: Manage all 4 Armor slots and the Offhand slot directly inside the Ender Chest.
+
+*   Dynamic 3x3 Crafting Grid:
+
+    *   Default 2x2 layout.
+    *   Automatically expands to 3x3 if there is a crafting table in your inventory or Ender Chest.
 
 **Server & Multiplayer Support**
-- Server-Side Optional: Designed to run smoothly in multiplayer environments.
 
-- Vanilla Client Friendly: Players joining without the mod installed can play normally and will see the standard vanilla Ender Chest GUI with zero connection errors or registry mismatches.
-
-- No Added Blocks/Entities: Leaves world saves completely clean and lightweight.
-
-**Requirements**
-- Platform: NeoForge
-
-- Minecraft Version: 1.21.1
+*   Optional on the server side.
+*   Players who join without the mod installed will see the standard Ender Chest interface from the original version of the game.
