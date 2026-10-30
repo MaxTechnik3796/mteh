@@ -13,6 +13,8 @@ import org.jetbrains.annotations.NotNull;
 public class EnderHubScreen extends AbstractContainerScreen<EnderHubMenu>{
 	private static final ResourceLocation CONTAINER_BACKGROUND=ResourceLocation.withDefaultNamespace("textures/gui/container/generic_54.png");
 	private static final ResourceLocation ENDER_HUB_BACKGROUND=ResourceLocation.fromNamespaceAndPath(MtehMod.MODID,"textures/gui/container/ender_hub.png");
+	private Button shiftButton;
+	private Button gridButton;
 	public EnderHubScreen(EnderHubMenu menu,Inventory playerInventory,Component title){
 		super(menu,playerInventory,title);
 		this.imageWidth=277;
@@ -27,20 +29,33 @@ public class EnderHubScreen extends AbstractContainerScreen<EnderHubMenu>{
 		super.init();
 		int x=(this.width-this.imageWidth)/2;
 		int y=(this.height-this.imageHeight)/2;
-		Button shiftButton=Button.builder(this.getShiftButtonText(),button->{
-			this.menu.toggleShiftMode();
+		this.shiftButton=Button.builder(this.getShiftButtonText(),button->{
 			if(this.minecraft!=null&&this.minecraft.gameMode!=null) this.minecraft.gameMode.handleInventoryButtonClick(this.menu.containerId,0);
-			button.setMessage(this.getShiftButtonText());
-			button.setTooltip(this.getShiftButtonTooltip());
+			this.menu.toggleShiftMode();
+			this.updateButtons();
 		}).bounds(x+215,y+122,60,16).tooltip(this.getShiftButtonTooltip()).build();
-		this.addRenderableWidget(shiftButton);
-		Button gridButton=Button.builder(this.getGridButtonText(),button->{
-			this.menu.toggleGridMode();
+		this.addRenderableWidget(this.shiftButton);
+		this.gridButton=Button.builder(this.getGridButtonText(),button->{
 			if(this.minecraft!=null&&this.minecraft.gameMode!=null) this.minecraft.gameMode.handleInventoryButtonClick(this.menu.containerId,1);
-			button.setMessage(this.getGridButtonText());
-			button.setTooltip(this.getGridButtonTooltip());
+			this.menu.toggleGridMode();
+			this.updateButtons();
 		}).bounds(x+215,y+140,60,16).tooltip(this.getGridButtonTooltip()).build();
-		this.addRenderableWidget(gridButton);
+		this.addRenderableWidget(this.gridButton);
+	}
+	@Override
+	protected void containerTick(){
+		super.containerTick();
+		this.updateButtons();
+	}
+	private void updateButtons(){
+		if(this.shiftButton!=null){
+			this.shiftButton.setMessage(this.getShiftButtonText());
+			this.shiftButton.setTooltip(this.getShiftButtonTooltip());
+		}
+		if(this.gridButton!=null){
+			this.gridButton.setMessage(this.getGridButtonText());
+			this.gridButton.setTooltip(this.getGridButtonTooltip());
+		}
 	}
 	private boolean isShiftToGrid(){
 		return this.menu.getShiftMode();

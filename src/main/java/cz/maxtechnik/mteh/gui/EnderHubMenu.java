@@ -42,8 +42,8 @@ public class EnderHubMenu extends AbstractContainerMenu{
 	private final CraftingContainer craftSlots=new TransientCraftingContainer(this,3,3);
 	private final ResultContainer resultSlots=new ResultContainer();
 	private final Player player;
-	private boolean shiftMode;
-	private boolean gridMode;
+	private boolean shiftMode=false;
+	private boolean gridMode=false;
 	public EnderHubMenu(int containerId,Inventory playerInventory){
 		this(containerId,playerInventory,new SimpleContainer(27));
 	}
@@ -51,8 +51,30 @@ public class EnderHubMenu extends AbstractContainerMenu{
 		super(MenuType.GENERIC_9x3,containerId);
 		this.enderChest=enderChest;
 		this.player=playerInventory.player;
-		this.shiftMode=SHIFT_MODES.getOrDefault(this.player.getUUID(),false);
-		this.gridMode=GRID_MODES.getOrDefault(this.player.getUUID(),false);
+		if(!this.player.level().isClientSide){
+			this.shiftMode=SHIFT_MODES.getOrDefault(this.player.getUUID(),false);
+			this.gridMode=GRID_MODES.getOrDefault(this.player.getUUID(),false);
+		}
+		this.addDataSlot(new DataSlot(){
+			@Override
+			public int get(){
+				return EnderHubMenu.this.shiftMode?1:0;
+			}
+			@Override
+			public void set(int value){
+				EnderHubMenu.this.shiftMode=(value!=0);
+			}
+		});
+		this.addDataSlot(new DataSlot(){
+			@Override
+			public int get(){
+				return EnderHubMenu.this.gridMode?1:0;
+			}
+			@Override
+			public void set(int value){
+				EnderHubMenu.this.gridMode=(value!=0);
+			}
+		});
 		// Ender (3x9) - Index 0 - 26
 		for(int row=0;row<3;++row){
 			for(int col=0;col<9;++col){
@@ -123,21 +145,23 @@ public class EnderHubMenu extends AbstractContainerMenu{
 	}
 	public void toggleShiftMode(){
 		this.shiftMode=!this.shiftMode;
-		SHIFT_MODES.put(this.player.getUUID(),this.shiftMode);
+		if(!this.player.level().isClientSide) SHIFT_MODES.put(this.player.getUUID(),this.shiftMode);
 	}
 	public void toggleGridMode(){
 		this.gridMode=!this.gridMode;
-		GRID_MODES.put(this.player.getUUID(),this.gridMode);
+		if(!this.player.level().isClientSide) GRID_MODES.put(this.player.getUUID(),this.gridMode);
 	}
 	@Override
 	public boolean clickMenuButton(@NotNull Player player,int id){
 		switch(id){
 			case 0 -> {
 				this.toggleShiftMode();
+				this.broadcastChanges();
 				return true;
 			}
 			case 1 -> {
 				this.toggleGridMode();
+				this.broadcastChanges();
 				return true;
 			}
 			default -> {
